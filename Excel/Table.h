@@ -4,15 +4,17 @@
 #include "Cell.h"  
 #include "Container.hpp"
 
-class Table {  
+class Table 
+{  
 private:  
 	size_t rows;  
-	size_t cols;  
+	size_t cols;
+	//Config config;
 	Container<Container<Cell>> matrix;
 
 public:  
 	Table() : rows(0), cols(0) {}
-	Table(size_t rows, size_t cols);  
+	Table(size_t rows, size_t cols, std::string configFile);  
 
 	Table(const Table& other);  
 	Table& operator=(const Table& other);  

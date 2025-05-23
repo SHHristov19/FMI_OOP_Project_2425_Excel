@@ -4,7 +4,8 @@
 #include "CellType.h"
 
 // Abstract base class
-class Cell {
+class Cell 
+{
 protected:
     CellType type = CellType::EMPTY;
 

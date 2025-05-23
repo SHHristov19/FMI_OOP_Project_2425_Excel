@@ -4,6 +4,8 @@
 #include "ValueCell.hpp"
 
 int main() {
+    
+
     Config config;
 
     // 1. Зареждане на конфигурация
@@ -21,8 +23,8 @@ int main() {
     std::cout << "\nCreating table with size " << rows << "x" << cols << "\n\n";
 
     // 3. Създаване на таблицата
-    Table table(rows, cols);
-
+    Table table(rows, cols, "");
+    //exit(0);
     // 4. Добавяне на примерни клетки
     table.setCell(0, 0, new ValueCell<int>(123, CellType::NUMBER));               // A1
     table.setCell(0, 1, new ValueCell<std::string>("Hello", CellType::TEXT));     // B1

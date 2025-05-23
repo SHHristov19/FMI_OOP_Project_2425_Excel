@@ -3,34 +3,41 @@
 #include <string>
 
 template<typename T>
-class ValueCell : public Cell {
+class ValueCell : public Cell 
+{
 protected:
     T value;
 
 public:
-    ValueCell(const T& val, CellType t) : value(val) {
+    ValueCell(const T& val, CellType t) : value(val)
+    {
         type = t;
     }
 
-    std::string evaluate() const override {
+    std::string evaluate() const override
+    {
         return convertToString();
     }
 
-    std::string toString() const override {
+    std::string toString() const override
+    {
         return evaluate();
     }
 
-    virtual std::string convertToString() const {
+    virtual std::string convertToString() const
+    {
         return "[unsupported]";
     }
 
-    Cell* clone() const override {
+    Cell* clone() const override
+    {
         return new ValueCell<T>(*this);
     }
 
     void free() {}
 
-    void copyFrom(const Cell* other) {
+    void copyFrom(const Cell* other)
+    {
         const ValueCell<T>* ptr = dynamic_cast<const ValueCell<T>*>(other);
         if (ptr) {
             value = ptr->value;
@@ -38,7 +45,8 @@ public:
         }
     }
 
-    void moveFrom(Cell* other) {
+    void moveFrom(Cell* other)
+    {
         ValueCell<T>* ptr = dynamic_cast<ValueCell<T>*>(other);
         if (ptr) {
             value = std::move(ptr->value);
@@ -47,13 +55,17 @@ public:
     }
 };
 
+// Specializations for different types
+
 template<>
-std::string ValueCell<int>::convertToString() const {
+std::string ValueCell<int>::convertToString() const
+{
     return std::to_string(value);
 }
 
 template<>
-std::string ValueCell<double>::convertToString() const {
+std::string ValueCell<double>::convertToString() const
+{
     std::string str = std::to_string(value);
     str.erase(str.find_last_not_of('0') + 1);
     if (!str.empty() && str.back() == '.') str.pop_back();
@@ -61,11 +73,13 @@ std::string ValueCell<double>::convertToString() const {
 }
 
 template<>
-std::string ValueCell<bool>::convertToString() const {
+std::string ValueCell<bool>::convertToString() const
+{
     return value ? "TRUE" : "FALSE";
 }
 
 template<>
-std::string ValueCell<std::string>::convertToString() const {
+std::string ValueCell<std::string>::convertToString() const
+{
     return value;
 }

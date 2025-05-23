@@ -2,7 +2,9 @@
 #include <string>
 #include "Table.h"
 
-class IFormula {
+// Interface for formula evaluation
+class IFormula 
+{
 public:
     virtual ~IFormula() = default;
     virtual std::string evaluate(Table* table) const = 0;

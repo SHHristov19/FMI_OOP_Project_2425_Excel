@@ -1,4 +1,4 @@
-initialTableRows:3
+
 initialTableCols:4
 maxTableRows:10
 maxTableCols:10
@@ -6,3 +6,4 @@ autoFit:true
 visibleCellSymbols:10
 initialAlignment:center
 clearConsoleAfterCommand:false
+initialTableRows:3

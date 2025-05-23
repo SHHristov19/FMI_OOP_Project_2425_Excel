@@ -1,20 +1,15 @@
-﻿  Table.cpp
-C:\Users\shhristov\source\repos\Excel\Excel\Table.cpp(103,13): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\shhristov\source\repos\Excel\Excel\Table.cpp(134,29): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\shhristov\source\repos\Excel\Excel\Table.cpp(146,32): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\shhristov\source\repos\Excel\Excel\Table.cpp(146,25): warning C4267: 'initializing': conversion from 'size_t' to 'const int', possible loss of data
-C:\Users\shhristov\source\repos\Excel\Excel\Table.cpp(173,22): warning C4267: 'initializing': conversion from 'size_t' to 'char', possible loss of data
+﻿  main.cpp
 C:\Users\shhristov\source\repos\Excel\Excel\Container.hpp(49,36): warning C4267: 'argument': conversion from 'size_t' to 'unsigned int', possible loss of data
-  (compiling source file 'Table.cpp')
+  (compiling source file 'main.cpp')
       C:\Users\shhristov\source\repos\Excel\Excel\Container.hpp(49,36):
       the template instantiation context (the oldest one first) is
-          C:\Users\shhristov\source\repos\Excel\Excel\Table.cpp(9,36):
-          see reference to class template instantiation 'Container<Cell>' being compiled
+          C:\Users\shhristov\source\repos\Excel\Excel\Table.h(12,29):
+          see reference to class template instantiation 'Container<Container<Cell>>' being compiled
           C:\Users\shhristov\source\repos\Excel\Excel\Container.hpp(44,27):
-          while compiling class template member function 'Container<Cell>::Container(void)'
-              C:\Users\shhristov\source\repos\Excel\Excel\Table.cpp(9,30):
-              see the first reference to 'Container<Cell>::Container' in 'Table::Table'
+          while compiling class template member function 'Container<Container<Cell>>::Container(void)'
+              C:\Users\shhristov\source\repos\Excel\Excel\Table.h(15,29):
+              see the first reference to 'Container<Container<Cell>>::Container' in 'Table::Table'
           C:\Users\shhristov\source\repos\Excel\Excel\Container.hpp(47,38):
-          while compiling class template member function 'Container<Cell>::Container(size_t)'
+          while compiling class template member function 'Container<Container<Cell>>::Container(size_t)'
   
   Excel.vcxproj -> C:\Users\shhristov\source\repos\Excel\x64\Debug\Excel.exe

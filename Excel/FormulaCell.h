@@ -1,6 +1,6 @@
 #pragma once
 #include "Cell.h"
-#include "Formula.h"
+#include "IFormula.h"
 
 class FormulaCell : public Cell 
 {

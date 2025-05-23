@@ -30,13 +30,10 @@
     <ClInclude Include="ValueCell.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Formula.h">
+    <ClInclude Include="IFormula.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="FormulaCell.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ConfigProperty.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Container.hpp">
@@ -53,5 +50,13 @@
     <ClCompile Include="Config.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Common.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="config.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>

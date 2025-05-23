@@ -2,7 +2,7 @@
 #include "Config.h"
 
 // Инициализира празна матрица с посочени редове и колони
-Table::Table(size_t r, size_t c) : rows(r), cols(c) 
+Table::Table(size_t r, size_t c, std::string config) : rows(r), cols(c) 
 {
     for (size_t i = 0; i < rows; ++i) 
     {

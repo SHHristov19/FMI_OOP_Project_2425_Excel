@@ -2,7 +2,8 @@
 #include <string>
 #include <fstream>
 
-class Config {
+class Config 
+{
 private:
     std::string initialTableRows;
     std::string initialTableCols;
