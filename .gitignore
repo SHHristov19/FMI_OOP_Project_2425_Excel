@@ -31,3 +31,6 @@
 *.out
 *.app
 /.vs/Excel
+
+/x64
+/.vs
