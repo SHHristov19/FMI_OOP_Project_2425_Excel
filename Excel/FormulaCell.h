@@ -1,71 +1,78 @@
 #pragma once
 #include "Cell.h"
-#include "IFormula.h"
+#include <string>
+#include "FormulaType.h"
 
-class FormulaCell : public Cell 
+template<typename T>
+class FormulaCell : public Cell
 {
-private:
-    IFormula* formula;
+protected:
+    T value;
 
 public:
-    FormulaCell(IFormula* f) : formula(f) 
+    FormulaCell(const T& val, FormulaType t) : value(val)
     {
         type = CellType::FORMULA;
+
+
     }
 
-    FormulaCell(const FormulaCell& other) 
+    virtual std::string convertToString() const
     {
-        formula = other.formula->clone();
-        type = CellType::FORMULA;
-    }
-
-    FormulaCell& operator=(const FormulaCell& other)
-    {
-        if (this != &other)
-        {
-            delete formula;
-            formula = other.formula->clone();
-            type = CellType::FORMULA;
-        }
-        return *this;
-    }
-
-    ~FormulaCell()
-    {
-        delete formula;
-    }
-
-    std::string evaluate() const override
-    {
-        return formula->evaluate(nullptr);
-    }
-
-    std::string toString() const override
-    {
-        return evaluate();
+        return "[unsupported]";
     }
 
     Cell* clone() const override
     {
-        return new FormulaCell(*this);
+        return new FormulaCell<T>(*this);
     }
 
-    void free() { delete formula; formula = nullptr; }
+    void free() {}
 
     void copyFrom(const Cell* other)
     {
-        const FormulaCell* ptr = dynamic_cast<const FormulaCell*>(other);
-        if (ptr)
-        {
-            formula = ptr->formula->clone();
+        const FormulaCell<T>* ptr = dynamic_cast<const FormulaCell<T>*>(other);
+        if (ptr) {
+            value = ptr->value;
+            type = ptr->type;
         }
     }
 
-    void moveFrom(Cell* other) {
-        FormulaCell* ptr = dynamic_cast<FormulaCell*>(other);
+    void moveFrom(Cell* other)
+    {
+        FormulaCell<T>* ptr = dynamic_cast<FormulaCell<T>*>(other);
         if (ptr) {
-            formula = ptr->formula;
-            ptr->formula = nullptr;
+            value = std::move(ptr->value);
+            type = ptr->type;
         }
     }
 };
+
+// Specializations for different types
+
+template<>
+inline std::string FormulaCell<int>::convertToString() const
+{
+    return std::to_string(value);
+}
+
+template<>
+inline std::string FormulaCell<double>::convertToString() const
+{
+    std::string str = std::to_string(value);
+    str.erase(str.find_last_not_of('0') + 1);
+    if (!str.empty() && str.back() == '.') str.pop_back();
+    return str;
+}
+
+template<>
+inline std::string FormulaCell<bool>::convertToString() const
+{
+    return value ? "TRUE" : "FALSE";
+}
+
+template<>
+inline std::string FormulaCell<std::string>::convertToString() const
+{
+    return value;
+}

@@ -131,19 +131,20 @@
     <ClInclude Include="CellType.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="Container.hpp" />
-    <ClInclude Include="IFormula.h" />
+    <ClInclude Include="FormulaType.h" />
     <ClInclude Include="FormulaCell.h" />
     <ClInclude Include="Table.h" />
     <ClInclude Include="ValueCell.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Common.cpp" />
+    <ClCompile Include="Common.hpp" />
     <ClCompile Include="Config.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Table.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="config.txt" />
+    <Text Include="table.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

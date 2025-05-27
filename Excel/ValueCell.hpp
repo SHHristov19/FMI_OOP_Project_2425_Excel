@@ -3,7 +3,7 @@
 #include <string>
 
 template<typename T>
-class ValueCell : public Cell 
+class ValueCell : public Cell
 {
 protected:
     T value;
@@ -13,7 +13,7 @@ public:
     {
         type = t;
     }
-
+    
     std::string evaluate() const override
     {
         return convertToString();
@@ -58,13 +58,13 @@ public:
 // Specializations for different types
 
 template<>
-std::string ValueCell<int>::convertToString() const
+inline std::string ValueCell<int>::convertToString() const
 {
     return std::to_string(value);
 }
 
 template<>
-std::string ValueCell<double>::convertToString() const
+inline std::string ValueCell<double>::convertToString() const
 {
     std::string str = std::to_string(value);
     str.erase(str.find_last_not_of('0') + 1);
@@ -73,13 +73,13 @@ std::string ValueCell<double>::convertToString() const
 }
 
 template<>
-std::string ValueCell<bool>::convertToString() const
+inline std::string ValueCell<bool>::convertToString() const
 {
     return value ? "TRUE" : "FALSE";
 }
 
 template<>
-std::string ValueCell<std::string>::convertToString() const
+inline std::string ValueCell<std::string>::convertToString() const
 {
     return value;
 }

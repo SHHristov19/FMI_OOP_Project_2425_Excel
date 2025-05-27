@@ -1,9 +1,13 @@
 #include "Table.h"
-#include "Config.h"
 
 // Инициализира празна матрица с посочени редове и колони
-Table::Table(size_t r, size_t c, std::string config) : rows(r), cols(c) 
+Table::Table(size_t r, size_t c, std::string configFile) : rows(r), cols(c)
 {
+    if (!config.loadFromFile(configFile)) {
+        std::cerr << "Error: failed to load config from " << configFile << "\n";
+        exit(1);
+    }
+
     for (size_t i = 0; i < rows; ++i) 
     {
         Container<Cell>* row = new Container<Cell>();
@@ -13,6 +17,40 @@ Table::Table(size_t r, size_t c, std::string config) : rows(r), cols(c)
         }
         matrix.push_back(row);
     }
+}
+
+Table::Table(std::string configFile)  
+{  
+   if (!config.loadFromFile(configFile)) {  
+       std::cerr << "Error: failed to load config from " << configFile << "\n";  
+       exit(1);  
+   }  
+
+   this->rows = config.getInt("initialTableRows");  
+   this->cols = config.getInt("initialTableCols");
+
+   for (size_t i = 0; i < this->rows; ++i)
+   {
+       Container<Cell>* row = new Container<Cell>();
+       for (size_t j = 0; j < this->cols; ++j)
+       {
+           row->push_back(nullptr);
+       }
+       matrix.push_back(row);
+   }
+}
+
+Table::Table(size_t r, size_t c, Config cfg) : rows(r), cols(c), config(cfg)
+{
+	for (size_t i = 0; i < rows; ++i)
+	{
+		Container<Cell>* row = new Container<Cell>();
+		for (size_t j = 0; j < cols; ++j)
+		{
+			row->push_back(nullptr);
+		}
+		matrix.push_back(row);
+	}
 }
 
 // Копиращ конструктор
@@ -42,6 +80,8 @@ Table& Table::operator=(const Table& other)
         this->~Table();
         rows = other.rows;
         cols = other.cols;
+		config = other.config;
+
         for (size_t i = 0; i < other.rows; ++i) 
         {
             Container<Cell>* newRow = new Container<Cell>();
@@ -74,6 +114,7 @@ Table& Table::operator=(Table&& other) noexcept
         this->~Table();
         rows = other.rows;
         cols = other.cols;
+		config = std::move(other.config);
         matrix = std::move(other.matrix);
         other.rows = 0;
         other.cols = 0;
@@ -112,11 +153,8 @@ std::string Table::center(const std::string& str, int width)
 
 void Table::print() 
 {
-    Config config;
-    config.loadFromFile("config.txt");
-
-    bool autoFit = config.getBool("autoFit");
-    int visibleSymbols = config.getInt("visibleCellSymbols");
+    bool autoFit = this->config.getBool("autoFit");
+    int visibleSymbols = this->config.getInt("visibleCellSymbols");
 
     // Определяме ширината на всяка клетка
     int cellWidth = visibleSymbols;
@@ -169,7 +207,8 @@ void Table::print()
     printDivider();
 
     // Всички редове
-    for (size_t i = 0; i < rows; ++i) {
+    for (size_t i = 0; i < rows; ++i) 
+    {
         char rowChar = 'A' + i;
         std::cout << "|" << center(std::string(1, rowChar), cellWidth) << "|";
         for (size_t j = 0; j < cols; ++j) {
@@ -180,4 +219,118 @@ void Table::print()
         std::cout << "\n";
         printDivider();
     }
+}
+
+bool isDividerLine(const std::string& line) {
+    for (char ch : line) {
+        if (ch != '|' && ch != '-' && ch != '\r' && ch != '\n')
+            return false;
+    }
+    return true;
+}
+
+bool Table::loadTableFromFile(const std::string& filename)
+{
+    std::ifstream in(filename);
+    if (!in.is_open()) return false;
+
+    std::string line;
+    size_t currentRow = 0;
+
+    while (std::getline(in, line)) 
+    {
+        if (isDividerLine(line))
+            continue;
+
+        if (currentRow == 0)
+        {
+            currentRow++;
+            continue;
+        }
+
+        size_t firstPipe = line.find('|');
+        size_t secondPipe = line.find('|', firstPipe + 1);
+
+        if (secondPipe == std::string::npos)
+            continue;
+
+        Container<std::string> row;
+        size_t pos = secondPipe;
+        size_t next;
+        
+
+        while ((next = line.find('|', pos + 1)) != std::string::npos) 
+        {
+            std::string value = line.substr(pos + 1, next - pos - 1);
+
+            size_t start = value.find_first_not_of(' ');
+            size_t end = value.find_last_not_of(' ');
+
+            if (start != std::string::npos && end != std::string::npos)
+                value = value.substr(start, end - start + 1);
+            else
+                value = "";
+
+            row.push_back(new std::string(value));
+            pos = next;
+        }
+
+        int maxRows = config.getInt("maxTableRows");
+        int maxCols = config.getInt("maxTableCols");
+
+		if (currentRow >= maxRows || row.getSize() > maxCols)
+		{
+			std::cerr << "Error: Exceeded maximum table size. Maximum rows: " << maxRows << ", Maximum columns: " << maxCols << "\n";
+			row.free();
+			return false;
+		}
+
+        for (size_t col = 0; col < row.getSize(); ++col)
+        {
+            std::string value = *row[col];
+			common::toLower(value);
+
+            Cell* cell = nullptr; 
+
+            if (value.empty())
+			{
+				cell = new ValueCell<std::string>(value, CellType::EMPTY);
+			}
+			else if (value == "true" || value == "false")
+            {
+                bool boolValue = (value == "true");
+                cell = new ValueCell<bool>(boolValue, CellType::BOOL);
+            }
+            else
+            {
+                try
+                {
+                    // Try to parse as number
+                    size_t idx;
+                    double number = std::stod(value, &idx);
+                    if (idx == value.size()) // parsed whole string
+                    {
+                        cell = new ValueCell<double>(number, CellType::NUMBER);
+                    }
+                    else
+                    {
+                        cell = new ValueCell<std::string>(value, CellType::TEXT);
+                    }
+                }
+                catch (...)
+                {
+                    cell = new ValueCell<std::string>(value, CellType::TEXT);
+                }
+            }
+
+            this->setCell(currentRow, col, cell);
+            delete cell;
+        }
+
+        row.free();
+
+        ++currentRow;
+    }
+
+    return true;
 }

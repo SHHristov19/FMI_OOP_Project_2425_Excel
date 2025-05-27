@@ -1,35 +1,39 @@
 #include <iostream>
-#include "Config.h"
 #include "Table.h"
-#include "ValueCell.hpp"
 
 int main() {
-    
+    std::string tableFile = "table.txt";
+    std::string configFile = "config.txt";
+      
+    Table table(configFile);
 
-    Config config;
-
-    // 1. Зареждане на конфигурация
-    if (!config.loadFromFile("config.txt")) {
-        std::cerr << "Error: Failed to load configuration.\n";
+   /* if (!table.loadTableFromFile(tableFile)) {
+        std::cerr << "Failed to load table from '" << tableFile << "'\n";
         return 1;
     }
 
-    config.print(); // по избор: показва конфигурацията
+    std::cout << "Opened table '" << tableFile << "' with config '" << configFile << "'\n";*/
 
-    // 2. Извличане на размери от конфигурацията
-    int rows = config.getInt("initialTableRows");
-    int cols = config.getInt("initialTableCols");
+    // Add a text value
+    Cell* textCell = new ValueCell<std::string>("Hello", CellType::TEXT);
+    table.setCell(0, 0, textCell);
+    delete textCell; // Assuming setCell copies the cell
 
-    std::cout << "\nCreating table with size " << rows << "x" << cols << "\n\n";
+    // Add a numeric value
+    Cell* numberCell = new ValueCell<double>(42.0, CellType::NUMBER);
+    table.setCell(0, 1, numberCell);
+    delete numberCell;
 
-    // 3. Създаване на таблицата
-    Table table(rows, cols, "");
-    //exit(0);
-    // 4. Добавяне на примерни клетки
-    table.setCell(0, 0, new ValueCell<int>(123, CellType::NUMBER));               // A1
-    table.setCell(0, 1, new ValueCell<std::string>("Hello", CellType::TEXT));     // B1
-    table.setCell(1, 0, new ValueCell<bool>(true, CellType::BOOL));               // A2
-    table.setCell(1, 1, new ValueCell<double>(3.14, CellType::NUMBER));           // B2
+    // Add a boolean value
+    Cell* boolCell = new ValueCell<bool>(true, CellType::BOOL);
+    table.setCell(0, 2, boolCell);
+    delete boolCell;
+
+    // Add a formula (represented as text starting with '=')
+    Cell* formulaCell = new ValueCell<std::string>("=A1+B1", CellType::FORMULA);
+    table.setCell(0, 3, formulaCell);
+    delete formulaCell;
+     
 
     // 5. Печат на таблицата
     std::cout << "Table:\n";

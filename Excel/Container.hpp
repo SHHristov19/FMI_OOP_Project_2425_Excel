@@ -18,7 +18,7 @@ private:
 
 	void copyFrom(const Container<T>& other);
 	void moveFrom(Container<T>&& other) noexcept;
-	void free();
+	
 
 public:
 	Container();
@@ -36,7 +36,7 @@ public:
 
 	const T* operator[](size_t idx) const;
 	T*& operator[](size_t idx);
-
+	void free();
 	~Container() noexcept;
 };
 
