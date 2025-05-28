@@ -132,7 +132,7 @@
     <ClInclude Include="Config.h" />
     <ClInclude Include="Container.hpp" />
     <ClInclude Include="FormulaType.h" />
-    <ClInclude Include="FormulaCell.h" />
+    <ClInclude Include="FormulaCell.hpp" />
     <ClInclude Include="Table.h" />
     <ClInclude Include="ValueCell.hpp" />
   </ItemGroup>

@@ -13,7 +13,7 @@ namespace common
 	std::string getInput();
 	void displayErrorAndClearLine();
 	void enterValidString(std::string& data, std::string msg, bool isUpdate);
-
+	std::string formatDouble(double num);
 }
 
 inline void common::clearConsole()
@@ -92,3 +92,35 @@ inline void common::enterValidString(std::string& data, std::string msg, bool is
 		}
 	}
 } 
+
+inline std::string common::formatDouble(double num)
+{
+	// Round the number to 2 decimal places
+	num = std::round(num * 100) / 100.0;
+
+	std::string str = std::to_string(num);
+
+	size_t dotPos = str.find('.');
+	if (dotPos == std::string::npos) 
+	{
+		return str + ".00";
+	}
+
+	// Get how many digits are after the decimal point
+	size_t decimals = str.length() - dotPos - 1;
+
+	if (decimals == 0) 
+	{
+		return str + "00";
+	}
+	else if (decimals == 1) 
+	{
+		return str + "0";
+	}
+	else if (decimals > 2) 
+	{
+		return str.substr(0, dotPos + 3);  // Keep only 2 digits after the dot
+	}
+
+	return str;
+}

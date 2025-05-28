@@ -30,7 +30,7 @@
     <ClInclude Include="ValueCell.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FormulaCell.h">
+    <ClInclude Include="FormulaCell.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Container.hpp">
