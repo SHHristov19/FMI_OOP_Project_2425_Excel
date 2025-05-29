@@ -10,7 +10,7 @@ private:
 	size_t rows;  
 	size_t cols;
 	Config config;
-	Container<Container<Cell>> matrix;
+	container<container<Cell>> matrix;
 
 public:  
 	Table() : rows(0), cols(0), config(Config()) {}
@@ -18,15 +18,16 @@ public:
 	Table(size_t rows, size_t cols, std::string configFile);  
 	Table(size_t rows, size_t cols, Config config);
 
-
+	~Table();
 	Table(const Table& other);  
 	Table& operator=(const Table& other);  
 
 	Table(Table&& other) noexcept;  
 	Table& operator=(Table&& other) noexcept;  
+	//Cell*& operator[](std::string cellRef);
 
 	void setCell(size_t row, size_t col, Cell* cell);  
-	Cell* getCell(size_t row, size_t col);  
+	Cell* getCell(size_t row, size_t col);
 
 	// Helper function to center the text in a cell
 	std::string center(const std::string& str, int width);
@@ -36,4 +37,6 @@ public:
 	size_t getColCount() const { return cols; }
 
 	bool loadTableFromFile(const std::string& filename);
+	size_t countRowsFromFile(const std::string& filename);
+	size_t countColsFromFile(const std::string& filename);
 };

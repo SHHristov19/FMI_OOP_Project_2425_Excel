@@ -7,5 +7,6 @@ enum class CellType
     TEXT,
     BOOL,
     FORMULA,
+    REFERENCE,
     ERROR
 };

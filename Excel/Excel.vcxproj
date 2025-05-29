@@ -131,14 +131,18 @@
     <ClInclude Include="CellType.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="Container.hpp" />
+    <ClInclude Include="ExpressionCell.hpp" />
     <ClInclude Include="FormulaType.h" />
-    <ClInclude Include="FormulaCell.hpp" />
+    <ClInclude Include="FormulaCell.h" />
+    <ClInclude Include="ReferenceCell.hpp" />
     <ClInclude Include="Table.h" />
     <ClInclude Include="ValueCell.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Common.hpp" />
     <ClCompile Include="Config.cpp" />
+    <ClCompile Include="FormulaCell.cpp" />
+    <ClCompile Include="FormulaType.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Table.cpp" />
   </ItemGroup>

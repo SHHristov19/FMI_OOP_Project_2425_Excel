@@ -30,13 +30,19 @@
     <ClInclude Include="ValueCell.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FormulaCell.hpp">
+    <ClInclude Include="FormulaCell.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Container.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="FormulaType.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ReferenceCell.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ExpressionCell.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -52,6 +58,12 @@
     </ClCompile>
     <ClCompile Include="Common.hpp">
       <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FormulaCell.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FormulaType.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

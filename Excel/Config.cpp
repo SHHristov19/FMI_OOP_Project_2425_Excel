@@ -1,6 +1,4 @@
 #include "Config.h"
-#include <iostream>
-#include <sstream>
 
 bool Config::isDigitString(const std::string& str) const 
 {

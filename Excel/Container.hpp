@@ -2,62 +2,63 @@
 #include <iostream>
 
 template <typename T>
-class Container
+class container
 {
 private:
 	T** data = nullptr;
 	size_t size = 0;
 	size_t capacity = 0;
 
-	explicit Container(size_t size);
+	explicit container(size_t size);
 
 	void resize(size_t newCapacity);
 
 	unsigned int getNextPowerOfTwo(unsigned int n) const;
 	unsigned int allocateCapacity(unsigned int n) const;
 
-	void copyFrom(const Container<T>& other);
-	void moveFrom(Container<T>&& other) noexcept;
+	void copyFrom(const container<T>& other);
+	void moveFrom(container<T>&& other) noexcept;
 	
 
 public:
-	Container();
+	container();
 
-	Container(const Container<T>& other);
-	Container<T>& operator=(const Container<T>& other);
+	container(const container<T>& other);
+	container(container<T>&& other) noexcept;
 
-	Container(Container<T>&& other) noexcept;
-	Container<T>& operator=(Container<T> && other) noexcept;
+	container<T>& operator=(const container<T>& other);
+	container<T>& operator=(container<T> && other) noexcept;
+	const T* operator[](size_t idx) const;
+	T*& operator[](size_t idx);
 
 	size_t getSize() const;
 	size_t getCapacity() const;
+	bool contains(const T* ptr) const { return std::find(data, data + size, ptr) != data + size; }
 
 	void push_back(T* ptr);
 
-	const T* operator[](size_t idx) const;
-	T*& operator[](size_t idx);
 	void free();
-	~Container() noexcept;
+	~container() noexcept;
 };
 
 template<typename T>
-Container<T>::Container() : Container(4) {}
+container<T>::container() : container(4) {}
 
 template<typename T>
-Container<T>::Container(size_t size) : size(0)
+container<T>::container(size_t size) : size(0)
 {
 	this->capacity = allocateCapacity(size);
 	this->data = new T*[this->capacity] { nullptr };
 }
 
 template<typename T>
-Container<T>::Container(const Container<T>& other)
+container<T>::container(const container<T>& other)
 {
 	copyFrom(other);
 }
 
 template<typename T>
-Container<T>& Container<T>::operator=(const Container<T>& other)
+container<T>& container<T>::operator=(const container<T>& other)
 {
 	if (this != &other)
 	{
@@ -69,13 +70,13 @@ Container<T>& Container<T>::operator=(const Container<T>& other)
 }
 
 template<typename T>
-Container<T>::Container(Container<T>&& other) noexcept
+container<T>::container(container<T>&& other) noexcept
 {
 	moveFrom(std::move(other));
 }
 
 template<typename T>
-Container<T>& Container<T>::operator=(Container<T>&& other) noexcept
+container<T>& container<T>::operator=(container<T>&& other) noexcept
 {
 	if (this != &other)
 	{
@@ -87,19 +88,19 @@ Container<T>& Container<T>::operator=(Container<T>&& other) noexcept
 }
 
 template<typename T>
-size_t Container<T>::getSize() const
+size_t container<T>::getSize() const
 {
 	return this->size;
 }
 
 template<typename T>
-size_t Container<T>::getCapacity() const
+size_t container<T>::getCapacity() const
 {
 	return this->capacity;
 }
 
 template<typename T>
-void Container<T>::push_back(T* ptr)
+void container<T>::push_back(T* ptr)
 {
 	if (getSize() >= getCapacity())
 	{
@@ -110,24 +111,25 @@ void Container<T>::push_back(T* ptr)
 }
 
 template<typename T>
-const T* Container<T>::operator[](size_t idx) const
+const T* container<T>::operator[](size_t idx) const
 {
 	return this->data[idx];
 }
 
 template<typename T>
-T*& Container<T>::operator[](size_t idx) {
+T*& container<T>::operator[](size_t idx) 
+{
 	return this->data[idx];
 }
 
 template<typename T>
-Container<T>::~Container() noexcept
+container<T>::~container() noexcept
 {
 	free();
 }
 
 template<typename T>
-unsigned int Container<T>::getNextPowerOfTwo(unsigned int n) const
+unsigned int container<T>::getNextPowerOfTwo(unsigned int n) const
 {
 	if (n == 0) return 1;
 
@@ -140,13 +142,13 @@ unsigned int Container<T>::getNextPowerOfTwo(unsigned int n) const
 }
 
 template<typename T>
-unsigned int Container<T>::allocateCapacity(unsigned int n) const
+unsigned int container<T>::allocateCapacity(unsigned int n) const
 {
 	return std::max(getNextPowerOfTwo(n + 1), 8u);
 }
 
 template<typename T>
-void Container<T>::resize(size_t newCapacity)
+void container<T>::resize(size_t newCapacity)
 {
 	T** newData = new T*[newCapacity] { nullptr };
 
@@ -161,7 +163,7 @@ void Container<T>::resize(size_t newCapacity)
 }
 
 template<typename T>
-void Container<T>::copyFrom(const Container<T>& other)
+void container<T>::copyFrom(const container<T>& other)
 {
 	this->size = other.size;
 	this->capacity = other.capacity;
@@ -175,7 +177,7 @@ void Container<T>::copyFrom(const Container<T>& other)
 }
 
 template<typename T>
-void Container<T>::moveFrom(Container<T>&& other) noexcept
+void container<T>::moveFrom(container<T>&& other) noexcept
 {
 	this->data = other.data;
 	this->size = other.size;
@@ -186,7 +188,7 @@ void Container<T>::moveFrom(Container<T>&& other) noexcept
 }
 
 template<typename T>
-void Container<T>::free()
+void container<T>::free()
 {
 	for (size_t i = 0; i < getSize(); i++)
 	{

@@ -1,6 +1,5 @@
 #include "Table.h"
 
-// Инициализира празна матрица с посочени редове и колони
 Table::Table(size_t r, size_t c, std::string configFile) : rows(r), cols(c)
 {
     if (!config.loadFromFile(configFile)) {
@@ -10,7 +9,7 @@ Table::Table(size_t r, size_t c, std::string configFile) : rows(r), cols(c)
 
     for (size_t i = 0; i < rows; ++i) 
     {
-        Container<Cell>* row = new Container<Cell>();
+        container<Cell>* row = new container<Cell>();
         for (size_t j = 0; j < cols; ++j) 
         {
             row->push_back(nullptr);
@@ -31,7 +30,7 @@ Table::Table(std::string configFile)
 
    for (size_t i = 0; i < this->rows; ++i)
    {
-       Container<Cell>* row = new Container<Cell>();
+       container<Cell>* row = new container<Cell>();
        for (size_t j = 0; j < this->cols; ++j)
        {
            row->push_back(nullptr);
@@ -44,7 +43,7 @@ Table::Table(size_t r, size_t c, Config cfg) : rows(r), cols(c), config(cfg)
 {
 	for (size_t i = 0; i < rows; ++i)
 	{
-		Container<Cell>* row = new Container<Cell>();
+		container<Cell>* row = new container<Cell>();
 		for (size_t j = 0; j < cols; ++j)
 		{
 			row->push_back(nullptr);
@@ -53,13 +52,12 @@ Table::Table(size_t r, size_t c, Config cfg) : rows(r), cols(c), config(cfg)
 	}
 }
 
-// Копиращ конструктор
 Table::Table(const Table& other) : rows(other.rows), cols(other.cols) 
 {
     for (size_t i = 0; i < other.rows; ++i) 
     {
-        Container<Cell>* newRow = new Container<Cell>();
-        const Container<Cell>* otherRow = other.matrix[i];
+        container<Cell>* newRow = new container<Cell>();
+        const container<Cell>* otherRow = other.matrix[i];
         for (size_t j = 0; j < other.cols; ++j) 
         {
             Cell* copied = nullptr;
@@ -84,8 +82,8 @@ Table& Table::operator=(const Table& other)
 
         for (size_t i = 0; i < other.rows; ++i) 
         {
-            Container<Cell>* newRow = new Container<Cell>();
-            const Container<Cell>* otherRow = other.matrix[i];
+            container<Cell>* newRow = new container<Cell>();
+            const container<Cell>* otherRow = other.matrix[i];
             for (size_t j = 0; j < other.cols; ++j) 
             {
                 Cell* copied = nullptr;
@@ -122,6 +120,20 @@ Table& Table::operator=(Table&& other) noexcept
     return *this;
 }
 
+//Cell*& Table::operator[](std::string cellRef)
+//{
+//    if (cellRef.size() < 2 || !isalpha(cellRef[0])) 
+//        throw std::invalid_argument("Invalid cell");
+//
+//    size_t row = cellRef[0] - 'A';
+//    int col = std::stoi(cellRef.substr(1)) - 1;
+//
+//    if (row >= rows || col >= cols || col < 0)
+//        throw std::out_of_range("Cell reference out of bounds");
+//
+//    return (*matrix[row])[col];
+//}
+
 void Table::setCell(size_t row, size_t col, Cell* cell) 
 {  
     if (row >= rows || col >= cols) return;
@@ -156,12 +168,10 @@ void Table::print()
     bool autoFit = this->config.getBool("autoFit");
     int visibleSymbols = this->config.getInt("visibleCellSymbols");
 
-    // Определяме ширината на всяка клетка
     int cellWidth = visibleSymbols;
 
     if (autoFit) 
     {
-        // Намираме най-дългата стойност в таблицата
         for (size_t i = 0; i < rows; ++i) 
         {
             for (size_t j = 0; j < cols; ++j) 
@@ -179,7 +189,7 @@ void Table::print()
         }
     }
 
-    cellWidth += 2; // 1 интервал от всяка страна
+    cellWidth += 2;
 
     const int totalCols = cols + 1;
 
@@ -192,10 +202,8 @@ void Table::print()
         std::cout << "\n";
     };
 
-    // Горен разделител
     printDivider();
 
-    // Заглавен ред с номера на колоните
     std::cout << "|" << center(" ", cellWidth) << "|";
     for (size_t j = 0; j < cols; ++j) {
         std::string num = std::to_string(j + 1);
@@ -203,10 +211,8 @@ void Table::print()
     }
     std::cout << "\n";
 
-    // Втори разделител
     printDivider();
 
-    // Всички редове
     for (size_t i = 0; i < rows; ++i) 
     {
         char rowChar = 'A' + i;
@@ -221,8 +227,10 @@ void Table::print()
     }
 }
 
-bool isDividerLine(const std::string& line) {
-    for (char ch : line) {
+bool isDividerLine(const std::string& line) 
+{
+    for (char ch : line) 
+    {
         if (ch != '|' && ch != '-' && ch != '\r' && ch != '\n')
             return false;
     }
@@ -254,7 +262,7 @@ bool Table::loadTableFromFile(const std::string& filename)
         if (secondPipe == std::string::npos)
             continue;
 
-        Container<std::string> row;
+        container<std::string> row;
         size_t pos = secondPipe;
         size_t next;
         
@@ -333,4 +341,61 @@ bool Table::loadTableFromFile(const std::string& filename)
     }
 
     return true;
+}
+
+size_t Table::countRowsFromFile(const std::string& filename)
+{
+	std::ifstream in(filename);
+	if (!in.is_open()) return 0;
+
+	std::string line;
+	size_t rowCount = 0;
+
+	while (std::getline(in, line))
+	{
+		if (isDividerLine(line))
+			continue;
+
+		if (line.empty())
+			continue;
+
+		rowCount++;
+	}
+
+	return rowCount;
+}
+
+size_t Table::countColsFromFile(const std::string& filename)
+{
+    std::ifstream in(filename);
+    if (!in.is_open()) return 0;
+
+    std::string line;
+    size_t colCount = 0;
+
+    if (std::getline(in, line))
+    {
+        size_t firstPipe = line.find('|');
+        size_t secondPipe = line.find('|', firstPipe + 1);
+
+        if (secondPipe != std::string::npos)
+        {
+            size_t pos = secondPipe;
+            while ((pos = line.find('|', pos + 1)) != std::string::npos)
+            {
+                colCount++;
+            }
+            colCount++;
+        }
+    }
+
+    return colCount;
+}
+
+Table::~Table()
+{
+    if (&matrix != nullptr)
+    {
+		matrix.free();
+    } 
 }

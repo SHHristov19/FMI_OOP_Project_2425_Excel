@@ -1,6 +1,5 @@
 #pragma once
 #include <iostream>
-#include <string>
 #include "CellType.h"
 
 // Abstract base class

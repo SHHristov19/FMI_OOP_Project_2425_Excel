@@ -1,6 +1,5 @@
 #pragma once
 #include "Cell.h"
-#include <string>
 
 template<typename T>
 class ValueCell : public Cell

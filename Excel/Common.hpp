@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <string>
+#include "Container.hpp"
 
 namespace common
 {
@@ -14,6 +15,7 @@ namespace common
 	void displayErrorAndClearLine();
 	void enterValidString(std::string& data, std::string msg, bool isUpdate);
 	std::string formatDouble(double num);
+	container<std::string> splitInput(const std::string input);
 }
 
 inline void common::clearConsole()
@@ -55,10 +57,6 @@ inline void common::toLower(std::string& data)
 inline std::string common::getInput()
 {
 	std::string line;
-
-	// Hide cursor
-	common::hideCursor();
-
 
 	std::getline(std::cin, line);
 
@@ -123,4 +121,22 @@ inline std::string common::formatDouble(double num)
 	}
 
 	return str;
+}
+
+inline container<std::string> common::splitInput(const std::string input)
+{
+	container<std::string> result;
+	size_t start = 0;
+	size_t end = input.find(' ');
+
+	while (end != std::string::npos)
+	{
+		result.push_back(new std::string(input.substr(start, end - start)));
+		start = end + 1;
+		end = input.find(' ', start);
+	}
+
+	result.push_back(new std::string(input.substr(start))); // Add the last part
+
+	return result;
 }
