@@ -26,6 +26,17 @@ public:
     int getInt(const std::string& key) const;
     bool getBool(const std::string& key) const;
     std::string getString(const std::string& key) const;
-
+	void createConfigFile(const std::string& filename);
     void print() const;
+
+    void setInitialTableRow(const std::string& rows);
+    void setInitialTableCol(const std::string& cols);
+    void setMaxTableRow(const std::string& rows);
+    void setMaxTableCol(const std::string& cols);
+    void setAutoFit(const std::string& fit);
+    void setVisibleCellSymbols(const std::string& symbols);
+    void setInitialAlignment(const std::string& alignment);
+    void setClearConsoleAfterCommand(const std::string& clear);
+
+	~Config() = default;
 };

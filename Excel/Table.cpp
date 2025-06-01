@@ -163,7 +163,17 @@ std::string Table::center(const std::string& str, int width)
     return std::string(left, ' ') + str + std::string(right, ' ');
 }
 
-void Table::print() 
+void Table::printDivider(int cellWidth, std::ostream& os) const
+{
+	os << "|";
+    for (int i = 0; i < cols + 1; ++i) 
+    {
+        os << std::string(cellWidth, '-') << "|";
+    }
+    os << "\n";
+}
+
+void Table::print(std::ostream& os)
 {
     bool autoFit = this->config.getBool("autoFit");
     int visibleSymbols = this->config.getInt("visibleCellSymbols");
@@ -191,39 +201,28 @@ void Table::print()
 
     cellWidth += 2;
 
-    const int totalCols = cols + 1;
+    printDivider(cellWidth, os);
 
-    auto printDivider = [&]() {
-        std::cout << "|";
-        for (int i = 0; i < totalCols; ++i) 
-        {
-            std::cout << std::string(cellWidth, '-') << "|";
-        }
-        std::cout << "\n";
-    };
-
-    printDivider();
-
-    std::cout << "|" << center(" ", cellWidth) << "|";
+    os << "|" << center(" ", cellWidth) << "|";
     for (size_t j = 0; j < cols; ++j) {
         std::string num = std::to_string(j + 1);
-        std::cout << center(num, cellWidth) << "|";
+        os << center(num, cellWidth) << "|";
     }
-    std::cout << "\n";
+    os << "\n";
 
-    printDivider();
+    printDivider(cellWidth, os);
 
     for (size_t i = 0; i < rows; ++i) 
     {
         char rowChar = 'A' + i;
-        std::cout << "|" << center(std::string(1, rowChar), cellWidth) << "|";
+        os << "|" << center(std::string(1, rowChar), cellWidth) << "|";
         for (size_t j = 0; j < cols; ++j) {
             const Cell* cell = (*matrix[i])[j];
             std::string val = cell ? cell->evaluate() : " ";
-            std::cout << center(val, cellWidth) << "|";
+            os << center(val, cellWidth) << "|";
         }
-        std::cout << "\n";
-        printDivider();
+        os << "\n";
+        printDivider(cellWidth, os);
     }
 }
 

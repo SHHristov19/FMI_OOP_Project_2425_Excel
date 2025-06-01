@@ -143,3 +143,154 @@ void Config::print() const
     std::cout << "initialAlignment: " << initialAlignment << "\n";
     std::cout << "clearConsoleAfterCommand: " << clearConsoleAfterCommand << "\n";
 }
+
+void Config::setInitialTableRow(const std::string& rows)
+{
+    if (isDigitString(rows))
+    {
+		initialTableRows = rows;
+	} 
+    else
+    {
+		std::cerr << "Invalid value for initialTableRows: " << rows << "\n";
+	}
+}
+
+void Config::setInitialTableCol(const std::string& cols)
+{
+	if (isDigitString(cols))
+	{
+		initialTableCols = cols;
+	}
+	else
+	{
+		std::cerr << "Invalid value for initialTableCols: " << cols << "\n";
+	}
+}
+
+void Config::setMaxTableRow(const std::string& rows)
+{
+	if (isDigitString(rows))
+	{
+		maxTableRows = rows;
+	}
+	else
+	{
+		std::cerr << "Invalid value for maxTableRows: " << rows << "\n";
+	}
+}
+
+void Config::setMaxTableCol(const std::string& cols)
+{
+	if (isDigitString(cols))
+	{
+		maxTableCols = cols;
+	}
+	else
+	{
+		std::cerr << "Invalid value for maxTableCols: " << cols << "\n";
+	}
+}
+
+void Config::setAutoFit(const std::string& fit)
+{
+	if (isBool(fit))
+	{
+		autoFit = fit;
+	}
+	else
+	{
+		std::cerr << "Invalid value for autoFit: " << fit << "\n";
+	}
+}
+
+void Config::setVisibleCellSymbols(const std::string& symbols)
+{
+	if (isDigitString(symbols))
+	{
+		visibleCellSymbols = symbols;
+	}
+	else
+	{
+		std::cerr << "Invalid value for visibleCellSymbols: " << symbols << "\n";
+	}
+}
+
+void Config::setInitialAlignment(const std::string& alignment)
+{
+	if (isAlignment(alignment))
+	{
+		initialAlignment = alignment;
+	}
+	else
+	{
+		std::cerr << "Invalid value for initialAlignment: " << alignment << "\n";
+	}
+}
+
+void Config::setClearConsoleAfterCommand(const std::string& clear)
+{
+	if (isBool(clear))
+	{
+		clearConsoleAfterCommand = clear;
+	}
+	else
+	{
+		std::cerr << "Invalid value for clearConsoleAfterCommand: " << clear << "\n";
+	}
+}
+
+void Config::createConfigFile(const std::string& filename)
+{
+    std::cout << "Enter the configurations: \n";
+
+	std::cout << "initialTableRows (default 5): ";
+	std::string rows;
+	std::getline(std::cin, rows);
+	if (rows.empty()) rows = "5";
+	else setInitialTableRow(rows);
+
+	std::cout << "initialTableCols (default 5): ";
+	std::string cols;
+	std::getline(std::cin, cols); 
+	if (cols.empty()) cols = "5";
+	setInitialTableCol(cols);
+
+	std::cout << "maxTableRows (default 10): ";
+	std::string maxRows;
+	std::getline(std::cin, maxRows);
+	if (maxRows.empty()) maxRows = "10";
+	setMaxTableRow(maxRows);
+
+	std::cout << "maxTableCols (default 10): ";
+	std::string maxCols;
+	std::getline(std::cin, maxCols);
+	if (maxCols.empty()) maxCols = "10";
+	setMaxTableCol(maxCols);
+
+	std::cout << "autoFit (true/false, default true): ";
+	std::string autoFitInput;
+	std::getline(std::cin, autoFitInput);
+	if (autoFitInput.empty()) autoFitInput = "true";
+	setAutoFit(autoFitInput);
+
+	std::cout << "visibleCellSymbols (default 5): ";
+	std::string visibleSymbols;
+	std::getline(std::cin, visibleSymbols);
+	if (visibleSymbols.empty()) visibleSymbols = "5";
+	setVisibleCellSymbols(visibleSymbols);
+
+	std::cout << "initialAlignment (left/center/right, default center): ";
+	std::string alignment;
+	std::getline(std::cin, alignment);
+	if (alignment.empty()) alignment = "center";
+	setInitialAlignment(alignment);
+
+	std::cout << "clearConsoleAfterCommand (true/false, default true): ";
+	std::string clearConsole;
+	std::getline(std::cin, clearConsole);
+	if (clearConsole.empty()) clearConsole = "true";
+	setClearConsoleAfterCommand(clearConsole);
+
+	saveToFile(filename);
+}
