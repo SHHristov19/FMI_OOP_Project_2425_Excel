@@ -1,4 +1,5 @@
-#include "Table.h"
+#include "Table.h" 
+#include "ExpressionCell.hpp"
 
 Table::Table(size_t r, size_t c, std::string configFile) : rows(r), cols(c)
 {
@@ -134,15 +135,31 @@ Table& Table::operator=(Table&& other) noexcept
 //    return (*matrix[row])[col];
 //}
 
-void Table::setCell(size_t row, size_t col, Cell* cell) 
+void Table::setCell(size_t row, size_t col, std::string data)
 {  
     if (row >= rows || col >= cols) return;
+
+    Cell* cell = new ExpressionCell(data, this);
+	Cell* existingCell = (*matrix[row])[col];
+
+    if (existingCell && existingCell->getType() == CellType::REFERENCE)
+    {
+        ReferenceCell* refCell = dynamic_cast<ReferenceCell*>(existingCell);
+        if (refCell)
+        {
+			row = refCell->getRow();
+			col = refCell->getCol();
+        }
+    }
 
     if ((*matrix[row])[col])
     {
         delete (*matrix[row])[col];
     }
+    
     ((*matrix[row]))[col] = cell ? cell->clone() : nullptr;
+
+	if (cell != nullptr) delete cell;
 }
 
 Cell* Table::getCell(size_t row, size_t col) 
@@ -330,7 +347,7 @@ bool Table::loadTableFromFile(const std::string& filename)
                 }
             }
 
-            this->setCell(currentRow, col, cell);
+            this->setCell(currentRow-1, col, value);
             delete cell;
         }
 
@@ -396,5 +413,5 @@ Table::~Table()
     if (&matrix != nullptr)
     {
 		matrix.free();
-    } 
+    }
 }

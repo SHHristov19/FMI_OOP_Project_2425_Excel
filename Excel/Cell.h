@@ -14,7 +14,7 @@ public:
     virtual std::string evaluate() const = 0;
     virtual std::string toString() const = 0;
 
-    virtual CellType getType() const { return type; }
+    virtual CellType getType() const { return this->type; }
 
     virtual Cell* clone() const = 0;
 };

@@ -42,9 +42,37 @@ public:
         return rawInput;
     }
 
+    CellType getType() const override 
+    {
+        return cellType;
+	}
+
     Cell* clone() const override 
     {
-        return new ExpressionCell(*this);
+        if (cellType == CellType::REFERENCE)
+        {
+            return new ReferenceCell(rawInput, table);
+        }
+        else if (cellType == CellType::FORMULA)
+        {
+            return new FormulaCell(rawInput, table);
+        }
+        else if (cellType == CellType::NUMBER)
+        {
+            return new ValueCell<double>(std::stod(rawInput), cellType);
+        }
+        else if (cellType == CellType::BOOL)
+        {
+            return new ValueCell<bool>(rawInput == "TRUE", cellType);
+        }
+		else if (cellType == CellType::TEXT || cellType == CellType::EMPTY)
+        {
+            return new ValueCell<std::string>(rawInput, cellType);
+		}
+        else
+        {
+            return new ExpressionCell(*this);
+        }
     }
 
 private:
@@ -86,7 +114,7 @@ private:
 
     bool isCellRef(const std::string& s) const 
     {
-        return s.size() >= 2 && isalpha(s[0]) && isdigit(s[1]);
+        return s.find_first_of("=") >= 2 && s.size() - s.find_last_of("=") >= 2 && std::count(s.begin(), s.end(), '=') == 1;
     }
 
     bool isRangeRef(const std::string& s) const 

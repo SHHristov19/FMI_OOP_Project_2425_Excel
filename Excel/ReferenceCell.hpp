@@ -1,25 +1,47 @@
-#pragma once  
-#include "Cell.h"  
-#include "Table.h"
+#include <iostream>
 
 class ReferenceCell : public Cell   
 {  
+private:
    std::string reference;  
-   mutable Cell* cell = nullptr;  
    Table* table = nullptr;  
-public:  
-   ReferenceCell(const std::string& ref, Table* t) : reference(ref), table(t) {}  
+   mutable size_t refRow;
+   mutable size_t refCol;
+
+protected:
+   mutable Cell* cell = nullptr;  
+
+public:   
+    ReferenceCell(const std::string& ref, Table* t) : reference(ref), table(t) { this->type = CellType::REFERENCE; }
 
    std::string evaluate() const override   
    {  
-       if (reference.empty() || !isalpha(reference[0])) return "#VALUE!";  
-       size_t row = reference[0] - 'A';  
-       int col = std::stoi(reference.substr(1)) - 1;  
+       if (reference.empty()) 
+           return "#VALUE!";  
 
-       if (!table) return "#VALUE!";  
+       std::string refToUse = reference;
+       auto pos = reference.find('=');
+       if (pos != std::string::npos)
+       {
+           refToUse = reference.substr(pos + 1);  
+       }  
+
+       if (!std::isalpha(refToUse[0])) 
+           return "#VALUE!";
+
+       size_t row = refToUse[0] - 'A';  
+       size_t col = std::stoi(refToUse.substr(1)) - 1;
+
+       this->refRow = row;
+       this->refCol = col;
+
+       if (!table) 
+           return "#VALUE!";  
 
        cell = table->getCell(row, col);  
-       if (!cell) return "0";  
+       if (!cell) 
+           return "0";  
+
        return cell->evaluate();  
    }  
 
@@ -27,6 +49,9 @@ public:
    {  
        return cell ? cell->toString() : "";  
    }  
+
+   size_t getRow() const { return refRow; }
+   size_t getCol() const { return refCol; }
 
    Cell* clone() const override   
    {  

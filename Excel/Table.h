@@ -31,7 +31,7 @@ public:
 	Table& operator=(Table&& other) noexcept;  
 	//Cell*& operator[](std::string cellRef);
 
-	void setCell(size_t row, size_t col, Cell* cell);  
+	void setCell(size_t row, size_t col, std::string data);  
 	Cell* getCell(size_t row, size_t col);
 
 	

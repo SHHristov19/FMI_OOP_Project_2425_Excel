@@ -18,9 +18,11 @@ int main()
         input = common::getInput();
         commands = common::splitInput(input);
 
-		if (commands.getSize() == 2 && *commands[0] == "new") // new configFile
+        // new tableFile configFile
+		if (commands.getSize() == 3 && *commands[0] == "new") 
         {
-            std::string configFile = *commands[1];
+            std::string configFile = common::fileExists(*commands[2]);
+            std::string tabelFile = common::fileExists(*commands[1]);
 
             Config cfg;
 			if (table != nullptr)
@@ -51,24 +53,38 @@ int main()
 			clearConsole = cfg.getBool("clearConsoleAfterCommand"); // Check if we should clear the console after commands
 
             table = new Table(rows, cols, configFile);
+            table->setTableFileName(tabelFile);
+            table->setConfigFileName(configFile);
+
             std::cout << "Created new table " << rows << "x" << cols << " with config '" << configFile << "'\n";
+            table->print(std::cout);
+            commands.free();
         }
-		else if (commands.getSize() == 3 && *commands[0] == "open") // open tableFile configFile
+        // open tableFile configFile
+		else if (commands.getSize() == 3 && *commands[0] == "open") 
         {
-            std::string tableFile = *commands[1];
-            std::string configFile = *commands[2];
+            std::string tableFile = common::fileExists(*commands[1]);
+            std::string configFile = common::fileExists(*commands[2]);
 
             Config cfg;
-            if (!cfg.loadFromFile(configFile)) 
+            if (configFile.empty() || !cfg.loadFromFile(configFile))
             {
                 common::clearLine();
                 std::cerr << "Failed to load config on open: " << configFile << "\n";
                 commands.free();
 				continue;
             }
+            if (tableFile.empty())
+            {
+                common::clearLine();
+                std::cerr << "Table file name not exists.\n";
+                commands.free();
+				continue;
+            }
 
 			size_t rows = table->countRowsFromFile(tableFile) - 1;
 			size_t cols = table->countColsFromFile(tableFile) - 1;
+            clearConsole = cfg.getBool("clearConsoleAfterCommand");
 
             table = new Table(rows, cols, cfg);
 
@@ -89,7 +105,8 @@ int main()
             table->print(std::cout);
 			commands.free();
         }
-        else if (table != nullptr && commands.getSize() == 3 && *commands[1] == "insert") // A1 insert ...
+        // A1 insert ...
+        else if (table != nullptr && commands.getSize() == 3 && *commands[1] == "insert") 
         {
 			std::string cellRef = *commands[0]; 
 
@@ -106,13 +123,35 @@ int main()
                 std::cerr << "Cell reference out of bounds\n";
             }
 
-			table->setCell(row, col, new ExpressionCell(*commands[2], table));
+			table->setCell(row, col, *commands[2]);
 
 			if (clearConsole)common::clearConsole();
 			table->print(std::cout);
             commands.free();
 			std::ofstream out(table->getTableFileName());
 			table->print(out);
+        }
+        // A1=A2  // B12=A11
+        else if (table != nullptr 
+            && commands.getSize() == 1 
+			&& commands[0]->find_first_of("=") >= 2 // Ensure the string has at least 2 characters before '='
+			&& commands[0]->size() - commands[0]->find_last_of("=") >= 2 // Ensure the string has at least 2 characters after '='
+			&& std::count((*commands[0]).begin(), (*commands[0]).end(), '=') == 1) // Find if the string contains exactly one '='
+        {
+            std::string cellRef = *commands[0];
+            size_t row = cellRef[0] - 'A';
+            size_t col = std::stoi(cellRef.substr(1)) - 1;
+            if (row >= table->getRowCount() || col >= table->getColCount() || col < 0)
+            {
+                std::cerr << "Cell reference out of bounds\n";
+            }
+            else
+            { 
+                table->setCell(row, col, *commands[0]);  
+                if (clearConsole) common::clearConsole();
+                table->print(std::cout);
+                commands.free();
+            }
         }
         else if (table != nullptr && commands.getSize() == 2 && *commands[1] == "delete") // A1 delete
         {
@@ -134,7 +173,7 @@ int main()
                 table->print(out);
 			}
         }
-        else if (table != nullptr && commands.getSize() == 2 && (*commands[1]).substr(0, 1) == "=") // A1 =FORMULA
+        else if (table != nullptr && commands.getSize() == 2 && commands[1]->substr(0, 1) == "=") // A1 =FORMULA
         {
             std::string cellRef = *commands[0];
             size_t row = cellRef[0] - 'A';
@@ -146,7 +185,7 @@ int main()
             }
             else
             {
-                table->setCell(row, col, new ExpressionCell(*commands[1], table));
+                table->setCell(row, col, *commands[1]);
                 if (clearConsole) common::clearConsole();
                 table->print(std::cout);
                 commands.free();

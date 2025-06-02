@@ -248,7 +248,7 @@ void Config::createConfigFile(const std::string& filename)
 	std::string rows;
 	std::getline(std::cin, rows);
 	if (rows.empty()) rows = "5";
-	else setInitialTableRow(rows);
+	setInitialTableRow(rows);
 
 	std::cout << "initialTableCols (default 5): ";
 	std::string cols;

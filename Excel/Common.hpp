@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <string>
+#include <fstream>
 #include "Container.hpp"
 
 namespace common
@@ -16,6 +17,7 @@ namespace common
 	void enterValidString(std::string& data, std::string msg, bool isUpdate);
 	std::string formatDouble(double num);
 	container<std::string> splitInput(const std::string input);
+	std::string fileExists(const std::string& fileName);
 }
 
 inline void common::clearConsole()
@@ -139,4 +141,11 @@ inline container<std::string> common::splitInput(const std::string input)
 	result.push_back(new std::string(input.substr(start))); // Add the last part
 
 	return result;
+}
+
+// Fnuction to try if such file withe fileName exists and can be opened
+inline std::string common::fileExists(const std::string& fileName)
+{
+	std::fstream file(fileName);
+	return file.good() ? fileName : "";
 }
