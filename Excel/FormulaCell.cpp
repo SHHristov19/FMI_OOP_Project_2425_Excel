@@ -76,11 +76,13 @@ std::string FormulaCell::evalFunction(const std::string& name, const container<s
             if (isRange(p))
             {
                 container<std::string> refs = extractRange(p);
-                for (size_t j = 0; j < refs.getSize(); ++j) {
+                for (size_t j = 0; j < refs.getSize(); ++j) 
+                {
                     std::string val = getCellValue(*refs[j]);
                     if (val == "#VALUE!")
                         return "#VALUE!";
-                    if (isNumber(val)) {
+                    if (isNumber(val)) 
+                    {
                         double num = std::stod(val);
                         result += num;
                         count++;
@@ -102,7 +104,8 @@ std::string FormulaCell::evalFunction(const std::string& name, const container<s
                 if (val == "#VALUE!")
                     return "#VALUE!";
 
-                if (isNumber(val)) {
+                if (isNumber(val)) 
+                {
                     double num = std::stod(val);
                     result += num;
                     count++;
@@ -135,11 +138,11 @@ std::string FormulaCell::evalFunction(const std::string& name, const container<s
 
         if (!found) return "#VALUE!";
 
-        if (name == FormulaType::SUM) return common::formatDouble(result);
-        if (name == FormulaType::AVERAGE) return common::formatDouble(result / count);
-        if (name == FormulaType::MIN) return common::formatDouble(minVal);
-        if (name == FormulaType::MAX) return common::formatDouble(maxVal);
-        if (name == FormulaType::COUNT) return common::formatDouble(result);
+        if (name == FormulaType::SUM) return common::formatNumber(result, 2);
+        if (name == FormulaType::AVERAGE) return common::formatNumber(result / count, 2);
+        if (name == FormulaType::MIN) return common::formatNumber(minVal, 2);
+        if (name == FormulaType::MAX) return common::formatNumber(maxVal, 2);
+        if (name == FormulaType::COUNT) return common::formatNumber(count, 0);
     }
 
     if (name == FormulaType::LEN)

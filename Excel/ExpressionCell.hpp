@@ -18,23 +18,7 @@ public:
 
     std::string evaluate() const override 
     {
-        switch (cellType) 
-        {
-            case CellType::EMPTY: 
-                return "";
-            case CellType::TEXT:
-            case CellType::NUMBER:
-            case CellType::BOOL:
-                return evalValue(cellType);
-            case CellType::REFERENCE: 
-                return evalReference();
-            case CellType::FORMULA:
-                return evalFormula();
-		    case CellType::ERROR: 
-                return "#VALUE!";
-            default: 
-                return "#VALUE!";
-        }
+		return this->evaluate();
     }
 
     std::string toString() const override 
@@ -69,36 +53,9 @@ public:
         {
             return new ValueCell<std::string>(rawInput, cellType);
 		}
-        else
-        {
-            return new ExpressionCell(*this);
-        }
     }
 
 private:
-
-    std::string evalValue(CellType type) const 
-    {
-        ValueCell<std::string> cell(rawInput, type);
-		return cell.evaluate();
-    }
-
-    std::string evalReference() const 
-    {
-		ReferenceCell cell(rawInput, table);
-        return cell.evaluate();
-    }
-
-    std::string evalRange() const 
-    {
-        return "#VALUE!";
-    }
-
-    std::string evalFormula() const 
-    {
-        FormulaCell cell(rawInput, table);
-        return cell.evaluate();
-    }
 
     bool isNumber(const std::string& s) const 
     {
