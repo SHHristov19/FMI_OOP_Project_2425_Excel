@@ -1,9 +1,10 @@
 #include "Table.h" 
-#include "ExpressionCell.hpp"
+#include "FactoryCell.hpp"
 
 Table::Table(size_t r, size_t c, std::string configFile) : rows(r), cols(c)
 {
-    if (!config.loadFromFile(configFile)) {
+    if (!config.loadFromFile(configFile)) 
+    {
         std::cerr << "Error: failed to load config from " << configFile << "\n";
         exit(1);
     }
@@ -21,7 +22,8 @@ Table::Table(size_t r, size_t c, std::string configFile) : rows(r), cols(c)
 
 Table::Table(std::string configFile)  
 {  
-   if (!config.loadFromFile(configFile)) {  
+   if (!config.loadFromFile(configFile)) 
+   {  
        std::cerr << "Error: failed to load config from " << configFile << "\n";  
        exit(1);  
    }  
@@ -80,6 +82,7 @@ Table& Table::operator=(const Table& other)
         rows = other.rows;
         cols = other.cols;
 		config = other.config;
+		matrix.free();
 
         for (size_t i = 0; i < other.rows; ++i) 
         {
@@ -139,7 +142,9 @@ void Table::setCell(size_t row, size_t col, std::string data)
 {  
     if (row >= rows || col >= cols) return;
 
-    Cell* cell = new ExpressionCell(data, this);
+    Cell* factoryCell = new FactoryCell(data, this);
+	
+
 	Cell* existingCell = (*matrix[row])[col];
 
     if (existingCell && existingCell->getType() == CellType::REFERENCE)
@@ -157,9 +162,9 @@ void Table::setCell(size_t row, size_t col, std::string data)
         delete (*matrix[row])[col];
     }
     
-    ((*matrix[row]))[col] = cell ? cell->clone() : nullptr;
+    ((*matrix[row]))[col] = factoryCell ? factoryCell->clone() : nullptr;
 
-	if (cell != nullptr) delete cell;
+	if (factoryCell != nullptr) delete factoryCell;
 }
 
 Cell* Table::getCell(size_t row, size_t col) 
@@ -203,7 +208,7 @@ void Table::print(std::ostream& os)
         {
             for (size_t j = 0; j < cols; ++j) 
             {
-                const Cell* cell = (*matrix[i])[j];
+                Cell* cell = (*matrix[i])[j];
                 if (cell) 
                 {
                     int len = cell->evaluate().length();
@@ -233,8 +238,9 @@ void Table::print(std::ostream& os)
     {
         char rowChar = 'A' + i;
         os << "|" << center(std::string(1, rowChar), cellWidth) << "|";
-        for (size_t j = 0; j < cols; ++j) {
-            const Cell* cell = (*matrix[i])[j];
+        for (size_t j = 0; j < cols; ++j) 
+        {
+            Cell* cell = (*matrix[i])[j];
             std::string val = cell ? cell->evaluate() : " ";
             os << center(val, cellWidth) << "|";
         }
@@ -253,109 +259,70 @@ bool isDividerLine(const std::string& line)
     return true;
 }
 
-bool Table::loadTableFromFile(const std::string& filename)
+bool Table::loadTableFromFile()
 {
-    std::ifstream in(filename);
+    std::ifstream in(this->tableRowFileName);
     if (!in.is_open()) return false;
 
     std::string line;
-    size_t currentRow = 0;
-
     while (std::getline(in, line)) 
     {
-        if (isDividerLine(line))
-            continue;
+        size_t firstSpace = line.find(' ');
+        if (firstSpace == std::string::npos)
+            continue; // skip invalid lines
+        std::string token1 = line.substr(0, firstSpace);
 
-        if (currentRow == 0)
+        size_t start = line.find_first_not_of(" ", firstSpace);
+        if(start == std::string::npos)
+            continue; // no second token
+        size_t secondSpace = line.find(' ', start);
+
+        std::string token2;
+        std::string rawInput;
+        if (secondSpace == std::string::npos) 
         {
-            currentRow++;
-            continue;
+            token2 = line.substr(start);
+            rawInput = "";
         }
-
-        size_t firstPipe = line.find('|');
-        size_t secondPipe = line.find('|', firstPipe + 1);
-
-        if (secondPipe == std::string::npos)
-            continue;
-
-        container<std::string> row;
-        size_t pos = secondPipe;
-        size_t next;
-        
-
-        while ((next = line.find('|', pos + 1)) != std::string::npos) 
+        else 
         {
-            std::string value = line.substr(pos + 1, next - pos - 1);
+            token2 = line.substr(start, secondSpace - start);
+            rawInput = line.substr(secondSpace + 1);
+            size_t nonSpace = rawInput.find_first_not_of(" ");
 
-            size_t start = value.find_first_not_of(' ');
-            size_t end = value.find_last_not_of(' ');
-
-            if (start != std::string::npos && end != std::string::npos)
-                value = value.substr(start, end - start + 1);
+            if (nonSpace != std::string::npos)
+                rawInput = rawInput.substr(nonSpace);
             else
-                value = "";
-
-            row.push_back(new std::string(value));
-            pos = next;
+                rawInput = "";
         }
 
-        int maxRows = config.getInt("maxTableRows");
-        int maxCols = config.getInt("maxTableCols");
-
-		if (currentRow >= maxRows || row.getSize() > maxCols)
-		{
-			std::cerr << "Error: Exceeded maximum table size. Maximum rows: " << maxRows << ", Maximum columns: " << maxCols << "\n";
-			row.free();
-			return false;
-		}
-
-        for (size_t col = 0; col < row.getSize(); ++col)
-        {
-            std::string value = *row[col];
-			common::toLower(value);
-
-            Cell* cell = nullptr; 
-
-            if (value.empty())
-			{
-				cell = new ValueCell<std::string>(value, CellType::EMPTY);
-			}
-			else if (value == "true" || value == "false")
-            {
-                bool boolValue = (value == "true");
-                cell = new ValueCell<bool>(boolValue, CellType::BOOL);
-            }
-            else
-            {
-                try
-                {
-                    // Try to parse as number
-                    size_t idx;
-                    double number = std::stod(value, &idx);
-                    if (idx == value.size()) // parsed whole string
-                    {
-                        cell = new ValueCell<double>(number, CellType::NUMBER);
-                    }
-                    else
-                    {
-                        cell = new ValueCell<std::string>(value, CellType::TEXT);
-                    }
-                }
-                catch (...)
-                {
-                    cell = new ValueCell<std::string>(value, CellType::TEXT);
-                }
-            }
-
-            this->setCell(currentRow-1, col, value);
-            delete cell;
-        }
-
-        row.free();
-
-        ++currentRow;
+        size_t row = std::stoul(token1);
+        size_t col = std::stoul(token2);
+        this->setCell(row, col, rawInput);
     }
 
+    return true;
+}
+
+bool Table::saveTable() 
+{ 
+    std::ofstream printOut(this->tableFileName);
+    this->print(printOut);
+
+    std::ofstream out(this->tableRowFileName);
+    if (!out.is_open()) return false;
+
+    for (size_t row = 0; row < rows; ++row) 
+    {
+        for (size_t col = 0; col < cols; ++col) 
+        {
+            Cell* cell = (*matrix[row])[col];
+            if (cell && cell->getType() != CellType::EMPTY)
+            {
+                out << row << " " << col << " " << cell->getRowValue() << "\n";
+            }
+        }
+    }
     return true;
 }
 

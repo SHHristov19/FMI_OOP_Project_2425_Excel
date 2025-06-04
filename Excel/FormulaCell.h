@@ -14,6 +14,7 @@ public:
         : rawFormula(formulaText), parentTable(table) 
     {
         type = CellType::FORMULA;
+		rowValue = formulaText;
     };
 
     Cell* clone() const override;

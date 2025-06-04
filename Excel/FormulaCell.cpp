@@ -65,6 +65,24 @@ std::string FormulaCell::evalFunction(const std::string& name, const container<s
         name == FormulaType::MIN || name == FormulaType::MAX || name == FormulaType::COUNT)
     {
 
+        if (args.getSize() < 1 || args.getSize() > 255)
+			return "#VALUE!";
+
+		if (name == FormulaType::SUM && args.getSize() < 1) 
+			return "#VALUE!";
+
+		if (name == FormulaType::AVERAGE && args.getSize() < 2)
+			return "#VALUE!";
+
+        if (name == FormulaType::COUNT && args.getSize() != 1 && !isRange(*args[0]))
+			return "#VALUE!";
+
+        if (name == FormulaType::MIN && args.getSize() != 1)
+			return "#VALUE!";
+
+        if (name == FormulaType::MAX && args.getSize() != 1)
+            return "#VALUE!";
+
         double result = 0;
         double count = 0;
         bool found = false;
@@ -158,6 +176,7 @@ std::string FormulaCell::evalFunction(const std::string& name, const container<s
             return "#VALUE!";
         container<std::string> refs = extractRange(*args[0]);
         std::string delimiter = *args[1];
+        delimiter.erase(std::remove(delimiter.begin(), delimiter.end(), '\"'), delimiter.end());
         std::string result = "";
         bool first = true;
         for (size_t i = 0; i < refs.getSize(); ++i)
@@ -176,7 +195,7 @@ std::string FormulaCell::evalFunction(const std::string& name, const container<s
 
     if (name == FormulaType::SUBSTR)
     {
-        if (args.getSize() != 3 || isRange(*args[0]) || !isNumber(*args[1]) || !isNumber(*args[2]))
+        if (args.getSize() != 3 || !isNumber(*args[1]) || !isNumber(*args[2]))
             return "#VALUE!";
 
         std::string base = *args[0];
@@ -223,7 +242,6 @@ std::string FormulaCell::getCellValue(const std::string& ref) const
     Cell* cell = parentTable->getCell(row, col);
     if (!cell) return "0";
     std::string val = cell->evaluate();
-    if (val == "#VALUE!") return "#VALUE!";
     return val;
 }
 

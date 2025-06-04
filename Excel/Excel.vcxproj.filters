@@ -42,7 +42,7 @@
     <ClInclude Include="ReferenceCell.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ExpressionCell.hpp">
+    <ClInclude Include="FactoryCell.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -71,6 +71,18 @@
       <Filter>Resource Files</Filter>
     </Text>
     <Text Include="table.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="config2.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="config3.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="table2.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="table3.txt">
       <Filter>Resource Files</Filter>
     </Text>
   </ItemGroup>

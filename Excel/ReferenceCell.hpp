@@ -5,14 +5,14 @@ class ReferenceCell : public Cell
 private:
    std::string reference;  
    Table* table = nullptr;  
-   mutable size_t refRow;
-   mutable size_t refCol;
+   mutable size_t refRow = SIZE_MAX;
+   mutable size_t refCol = SIZE_MAX;
 
 protected:
-   mutable Cell* cell = nullptr;  
+   mutable Cell* cell = nullptr;
 
 public:   
-    ReferenceCell(const std::string& ref, Table* t) : reference(ref), table(t) { this->type = CellType::REFERENCE; }
+    ReferenceCell(const std::string& ref, Table* t) : reference(ref), table(t) { this->type = CellType::REFERENCE; this->rowValue = ref; }
 
    std::string evaluate() const override   
    {  
@@ -20,7 +20,7 @@ public:
            return "#VALUE!";  
 
        std::string refToUse = reference;
-       auto pos = reference.find('=');
+       size_t pos = reference.find('=');
        if (pos != std::string::npos)
        {
            refToUse = reference.substr(pos + 1);  

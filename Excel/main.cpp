@@ -1,5 +1,5 @@
 #include "Common.hpp"
-#include "ExpressionCell.hpp"
+#include "FactoryCell.hpp"
 #include "Table.h"
 
 int main()
@@ -21,8 +21,8 @@ int main()
         // new tableFile configFile
 		if (commands.getSize() == 3 && *commands[0] == "new") 
         {
-            std::string configFile = common::fileExists(*commands[2]);
-            std::string tabelFile = common::fileExists(*commands[1]);
+            std::string configFile = *commands[2];
+            std::string tabelFile = *commands[1];
 
             Config cfg;
 			if (table != nullptr)
@@ -32,7 +32,6 @@ int main()
 			}
 			if (configFile.empty())
 			{
-				common::clearLine();
 				std::cerr << "Config file name cannot be empty\n";
 				commands.free();
 				continue;
@@ -42,7 +41,6 @@ int main()
 
             if (!cfg.loadFromFile(configFile)) 
             {
-                common::clearLine();
                 std::cerr << "Failed to load config on new: " << configFile << "\n";
                 commands.free();
                 continue;
@@ -69,14 +67,12 @@ int main()
             Config cfg;
             if (configFile.empty() || !cfg.loadFromFile(configFile))
             {
-                common::clearLine();
                 std::cerr << "Failed to load config on open: " << configFile << "\n";
                 commands.free();
 				continue;
             }
             if (tableFile.empty())
             {
-                common::clearLine();
                 std::cerr << "Table file name not exists.\n";
                 commands.free();
 				continue;
@@ -84,11 +80,22 @@ int main()
 
 			size_t rows = table->countRowsFromFile(tableFile) - 1;
 			size_t cols = table->countColsFromFile(tableFile) - 1;
+
             clearConsole = cfg.getBool("clearConsoleAfterCommand");
+
+            if (rows > cfg.getInt("maxTableRows") || cols > cfg.getInt("maxTableCols"))
+            {
+                std::cerr << "Cell reference out of bounds\n";
+                commands.free();
+                continue;
+            }
 
             table = new Table(rows, cols, cfg);
 
-            if (!table->loadTableFromFile(tableFile)) 
+            table->setTableFileName(tableFile);
+            table->setConfigFileName(configFile);
+
+            if (!table->loadTableFromFile()) 
             {
                 common::clearLine();
                 std::cerr << "Failed to load table from '" << tableFile << "'\n";
@@ -99,8 +106,6 @@ int main()
 			
             std::cout << "Opened table '" << tableFile << "' with config '" << configFile << "'\n";
 
-            table->setTableFileName(tableFile);
-			table->setConfigFileName(configFile);
 
             table->print(std::cout);
 			commands.free();
@@ -128,8 +133,7 @@ int main()
 			if (clearConsole)common::clearConsole();
 			table->print(std::cout);
             commands.free();
-			std::ofstream out(table->getTableFileName());
-			table->print(out);
+            table->saveTable();
         }
         // A1=A2  // B12=A11
         else if (table != nullptr 
@@ -169,15 +173,15 @@ int main()
 				if (clearConsole) common::clearConsole();
 				table->print(std::cout);
 				commands.free();
-                std::ofstream out(table->getTableFileName());
-                table->print(out);
+                table->saveTable();
 			}
         }
-        else if (table != nullptr && commands.getSize() == 2 && commands[1]->substr(0, 1) == "=") // A1 =FORMULA
+        else if (table != nullptr && commands.getSize() >= 2 && commands[1]->substr(0, 1) == "=") // A1 =FORMULA
         {
             std::string cellRef = *commands[0];
             size_t row = cellRef[0] - 'A';
             size_t col = std::stoi(cellRef.substr(1)) - 1;
+            std::string formula = input.substr(input.find_first_of('='));
 
             if (row >= table->getRowCount() || col >= table->getColCount() || col < 0)
             {
@@ -185,12 +189,11 @@ int main()
             }
             else
             {
-                table->setCell(row, col, *commands[1]);
+                table->setCell(row, col, formula);
                 if (clearConsole) common::clearConsole();
                 table->print(std::cout);
                 commands.free();
-                std::ofstream out(table->getTableFileName());
-                table->print(out);
+                table->saveTable();
             }
         }
         // To do A1=A2

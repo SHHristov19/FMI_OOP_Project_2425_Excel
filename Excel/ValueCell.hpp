@@ -11,6 +11,7 @@ public:
     ValueCell(const T& val, CellType t) : value(val)
     {
         type = t;
+        rowValue = val;
     }
     
     std::string evaluate() const override

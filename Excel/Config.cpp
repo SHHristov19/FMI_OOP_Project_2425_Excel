@@ -39,42 +39,42 @@ bool Config::loadFromFile(const std::string& filename)
         
         if (key == "initialTableRows") 
         {
-            if (!isDigitString(value)) goto invalid;
+            if (!isDigitString(value) || value.empty()) goto invalid;
             initialTableRows = value;
         }
         else if (key == "initialTableCols") 
         {
-            if (!isDigitString(value)) goto invalid;
+            if (!isDigitString(value) || value.empty()) goto invalid;
             initialTableCols = value;
         }
         else if (key == "maxTableRows") 
         {
-            if (!isDigitString(value)) goto invalid;
+            if (!isDigitString(value) || value.empty()) goto invalid;
             maxTableRows = value;
         }
         else if (key == "maxTableCols") 
         {
-            if (!isDigitString(value)) goto invalid;
+            if (!isDigitString(value) || value.empty()) goto invalid;
             maxTableCols = value;
         }
         else if (key == "autoFit") 
         {
-            if (!isBool(value)) goto invalid;
+            if (!isBool(value) || value.empty()) goto invalid;
             autoFit = value;
         }
         else if (key == "visibleCellSymbols") 
         {
-            if (!isDigitString(value)) goto invalid;
+            if (!isDigitString(value) || value.empty()) goto invalid;
             visibleCellSymbols = value;
         }
         else if (key == "initialAlignment") 
         {
-            if (!isAlignment(value)) goto invalid;
+            if (!isAlignment(value) || value.empty()) goto invalid;
             initialAlignment = value;
         }
         else if (key == "clearConsoleAfterCommand") 
         {
-            if (!isBool(value)) goto invalid;
+            if (!isBool(value) || value.empty()) goto invalid;
             clearConsoleAfterCommand = value;
         }
         else 

@@ -131,7 +131,7 @@
     <ClInclude Include="CellType.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="Container.hpp" />
-    <ClInclude Include="ExpressionCell.hpp" />
+    <ClInclude Include="FactoryCell.hpp" />
     <ClInclude Include="FormulaType.h" />
     <ClInclude Include="FormulaCell.h" />
     <ClInclude Include="ReferenceCell.hpp" />
@@ -148,7 +148,11 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="config.txt" />
+    <Text Include="config2.txt" />
+    <Text Include="config3.txt" />
     <Text Include="table.txt" />
+    <Text Include="table2.txt" />
+    <Text Include="table3.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
