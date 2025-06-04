@@ -10,7 +10,7 @@ private:
 	size_t rows;  
 	size_t cols;
 	Config config;
-	container<container<Cell>> matrix;
+	container<container<Cell>> table;
 	std::string tableFileName;
 	std::string configFileName;
 	std::string tableRowFileName;
@@ -23,17 +23,15 @@ public:
 	Table(std::string configFile);
 	Table(size_t rows, size_t cols, std::string configFile);  
 	Table(size_t rows, size_t cols, Config config);
-
-	~Table();
-	Table(const Table& other);  
-	Table& operator=(const Table& other);  
+	 
+	Table(const Table& other);
 
 	Table(Table&& other) noexcept;  
 	Table& operator=(Table&& other) noexcept;  
 	//Cell*& operator[](std::string cellRef);
 
-	void setCell(size_t row, size_t col, std::string data);  
-	Cell* getCell(size_t row, size_t col); 
+	void setCell(size_t row, size_t col, std::string data);
+	Cell* getCell(size_t row, size_t col);
 
 	void print(std::ostream& os);
 
@@ -43,7 +41,7 @@ public:
 	void setTableFileName(const std::string& fileName) 
 	{ 
 		tableFileName = fileName; 
-		tableRowFileName = fileName + ".row";
+		tableRowFileName = "row_" + fileName;
 	}
 
 	void setConfigFileName(const std::string& fileName) { configFileName = fileName; }

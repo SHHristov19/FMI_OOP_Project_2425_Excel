@@ -11,7 +11,7 @@ public:
     ValueCell(const T& val, CellType t) : value(val)
     {
         type = t;
-        rowValue = val;
+		rowValue = convertToString();
     }
     
     std::string evaluate() const override

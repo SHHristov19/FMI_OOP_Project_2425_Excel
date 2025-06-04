@@ -71,7 +71,7 @@ std::string FormulaCell::evalFunction(const std::string& name, const container<s
 		if (name == FormulaType::SUM && args.getSize() < 1) 
 			return "#VALUE!";
 
-		if (name == FormulaType::AVERAGE && args.getSize() < 2)
+		if (name == FormulaType::AVERAGE && args.getSize() < 1)
 			return "#VALUE!";
 
         if (name == FormulaType::COUNT && args.getSize() != 1 && !isRange(*args[0]))

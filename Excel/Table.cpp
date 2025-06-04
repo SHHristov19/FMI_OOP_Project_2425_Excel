@@ -16,7 +16,7 @@ Table::Table(size_t r, size_t c, std::string configFile) : rows(r), cols(c)
         {
             row->push_back(nullptr);
         }
-        matrix.push_back(row);
+        table.push_back(row);
     }
 }
 
@@ -38,7 +38,7 @@ Table::Table(std::string configFile)
        {
            row->push_back(nullptr);
        }
-       matrix.push_back(row);
+       table.push_back(row);
    }
 }
 
@@ -51,7 +51,7 @@ Table::Table(size_t r, size_t c, Config cfg) : rows(r), cols(c), config(cfg)
 		{
 			row->push_back(nullptr);
 		}
-		matrix.push_back(row);
+		table.push_back(row);
 	}
 }
 
@@ -60,7 +60,7 @@ Table::Table(const Table& other) : rows(other.rows), cols(other.cols)
     for (size_t i = 0; i < other.rows; ++i) 
     {
         container<Cell>* newRow = new container<Cell>();
-        const container<Cell>* otherRow = other.matrix[i];
+        const container<Cell>* otherRow = other.table[i];
         for (size_t j = 0; j < other.cols; ++j) 
         {
             Cell* copied = nullptr;
@@ -70,40 +70,40 @@ Table::Table(const Table& other) : rows(other.rows), cols(other.cols)
             }
             newRow->push_back(copied);
         }
-        matrix.push_back(newRow);
+        table.push_back(newRow);
     }
 }
 
-Table& Table::operator=(const Table& other) 
-{
-    if (this != &other) 
-    {
-        this->~Table();
-        rows = other.rows;
-        cols = other.cols;
-		config = other.config;
-		matrix.free();
+//Table& Table::operator=(const Table& other) 
+//{
+//    if (this != &other) 
+//    {
+//        this->~Table();
+//        rows = other.rows;
+//        cols = other.cols;
+//		config = other.config;
+//		table.free();
+//
+//        for (size_t i = 0; i < other.rows; ++i) 
+//        {
+//            container<Cell>* newRow = new container<Cell>();
+//            const container<Cell>* otherRow = other.table[i];
+//            for (size_t j = 0; j < other.cols; ++j) 
+//            {
+//                Cell* copied = nullptr;
+//                if ((*otherRow)[j])
+//                {
+//                    copied = (*otherRow)[j]->clone();
+//                }
+//                newRow->push_back(copied);
+//            }
+//            table.push_back(newRow);
+//        }
+//    }
+//    return *this;
+//}
 
-        for (size_t i = 0; i < other.rows; ++i) 
-        {
-            container<Cell>* newRow = new container<Cell>();
-            const container<Cell>* otherRow = other.matrix[i];
-            for (size_t j = 0; j < other.cols; ++j) 
-            {
-                Cell* copied = nullptr;
-                if ((*otherRow)[j])
-                {
-                    copied = (*otherRow)[j]->clone();
-                }
-                newRow->push_back(copied);
-            }
-            matrix.push_back(newRow);
-        }
-    }
-    return *this;
-}
-
-Table::Table(Table&& other) noexcept : rows(other.rows), cols(other.cols), matrix(std::move(other.matrix)) 
+Table::Table(Table&& other) noexcept : rows(other.rows), cols(other.cols), table(std::move(other.table)) 
 {
     other.rows = 0;
     other.cols = 0;
@@ -117,7 +117,17 @@ Table& Table::operator=(Table&& other) noexcept
         rows = other.rows;
         cols = other.cols;
 		config = std::move(other.config);
-        matrix = std::move(other.matrix);
+        table = std::move(other.table);
+
+		configFileName = other.configFileName;
+		tableFileName = other.tableFileName;
+		tableRowFileName = other.tableRowFileName;
+
+		other.configFileName.clear();
+		other.tableFileName.clear();
+		other.tableRowFileName.clear();
+
+		other.table.free();
         other.rows = 0;
         other.cols = 0;
     }
@@ -143,26 +153,13 @@ void Table::setCell(size_t row, size_t col, std::string data)
     if (row >= rows || col >= cols) return;
 
     Cell* factoryCell = new FactoryCell(data, this);
-	
 
-	Cell* existingCell = (*matrix[row])[col];
-
-    if (existingCell && existingCell->getType() == CellType::REFERENCE)
+    if ((*table[row])[col])
     {
-        ReferenceCell* refCell = dynamic_cast<ReferenceCell*>(existingCell);
-        if (refCell)
-        {
-			row = refCell->getRow();
-			col = refCell->getCol();
-        }
-    }
-
-    if ((*matrix[row])[col])
-    {
-        delete (*matrix[row])[col];
+        delete (*table[row])[col];
     }
     
-    ((*matrix[row]))[col] = factoryCell ? factoryCell->clone() : nullptr;
+    ((*table[row]))[col] = factoryCell ? factoryCell->clone() : nullptr;
 
 	if (factoryCell != nullptr) delete factoryCell;
 }
@@ -170,7 +167,7 @@ void Table::setCell(size_t row, size_t col, std::string data)
 Cell* Table::getCell(size_t row, size_t col) 
 {
     if (row >= rows || col >= cols) return nullptr;
-    return (*matrix[row])[col];
+    return (*table[row])[col];
 }
 
 std::string Table::center(const std::string& str, int width)
@@ -208,7 +205,7 @@ void Table::print(std::ostream& os)
         {
             for (size_t j = 0; j < cols; ++j) 
             {
-                Cell* cell = (*matrix[i])[j];
+                Cell* cell = (*table[i])[j];
                 if (cell) 
                 {
                     int len = cell->evaluate().length();
@@ -240,7 +237,7 @@ void Table::print(std::ostream& os)
         os << "|" << center(std::string(1, rowChar), cellWidth) << "|";
         for (size_t j = 0; j < cols; ++j) 
         {
-            Cell* cell = (*matrix[i])[j];
+            Cell* cell = (*table[i])[j];
             std::string val = cell ? cell->evaluate() : " ";
             os << center(val, cellWidth) << "|";
         }
@@ -316,7 +313,7 @@ bool Table::saveTable()
     {
         for (size_t col = 0; col < cols; ++col) 
         {
-            Cell* cell = (*matrix[row])[col];
+            Cell* cell = (*table[row])[col];
             if (cell && cell->getType() != CellType::EMPTY)
             {
                 out << row << " " << col << " " << cell->getRowValue() << "\n";
@@ -373,12 +370,4 @@ size_t Table::countColsFromFile(const std::string& filename)
     }
 
     return colCount;
-}
-
-Table::~Table()
-{
-    if (&matrix != nullptr)
-    {
-		matrix.free();
-    }
 }
